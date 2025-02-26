@@ -1,38 +1,56 @@
-import OpenAI from 'openai';
-import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { NextResponse } from 'next/server';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { StreamingTextResponse } from 'ai';
 
 export const runtime = 'edge';
 
-export async function POST(req: Request) {
+// Strict validation function
+const validateQuestions = (text: string): boolean => {
+  const questions = text.split('||');
+  return (
+    questions.length === 3 &&
+    questions.every(q => q.trim().endsWith('?')) &&
+    !text.includes('\n') &&
+    !text.includes('"')
+  );
+};
+
+export async function POST() {
   try {
-    const prompt =
-      "Create a list of three open-ended and engaging questions formatted as a single string. Each question should be separated by '||'. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction. For example, your output should be structured like this: 'What’s a hobby you’ve recently started?||If you could have dinner with any historical figure, who would it be?||What’s a simple thing that makes you happy?'. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment.";
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const response = await openai.completions.create({
-      model: 'gpt-3.5-turbo-instruct',
-      max_tokens: 400,
-      stream: true,
-      prompt,
-    });
+    const prompt = `Generate EXACTLY 3 questions  following these STRICT rules:
+    1. Format as: "Question1?||Question2?||Question3?"
+    2. Use exactly two vertical bars (||) as separators
+    3. No numbering, quotes, markdown, or extra text
+    4. Each question must end with a question mark
+    5. Example valid response: "What's a hobby you've recently started?||If you could have dinner with any historical figure, who would it be?||What's a simple thing that makes you happy?".
+    6. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction.
+    7. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment.
+    8. Always Changes the questions, never repeat the same questions.
+    YOUR OUTPUT MUST FOLLOW THESE RULES EXACTLY:`;
 
-    const stream = OpenAIStream(response);
+    const result = await model.generateContent(prompt);
+    const generatedText = result.response.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    console.log(generatedText)
+
+    const cleanedText = generatedText
+      ?.replaceAll('\n', ' ') // Remove newlines
+      ?.replace(/ +/g, ' ') // Remove multiple spaces
+      ?.replace(/["']/g, '') // Remove quotes
+      ?.trim();
+
+      const isValid = cleanedText && cleanedText.split('||').length === 3;
+
+      return NextResponse.json({
+        content: isValid && cleanedText
+      });
     
-    
-    return new StreamingTextResponse(stream);
   } catch (error) {
-    if (error instanceof OpenAI.APIError) {
-      // OpenAI API error handling
-      const { name, status, headers, message } = error;
-      return NextResponse.json({ name, status, headers, message }, { status });
-    } else {
-      // General error handling
-      console.error('An unexpected error occurred:', error);
-      throw error;
-    }
+    console.error('Error:', error);
+    return NextResponse.json({
+      error:'Internal server error'
+    });
   }
 }

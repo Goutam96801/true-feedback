@@ -1,30 +1,39 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import AuthProvider from '../context/AuthProvider';
-import { Toaster } from '@/components/ui/toaster';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import AuthProvider from "@/context/AuthProvider";
+import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'True Feedback',
-  description: 'Real feedback from real people.',
+  title: "True Feedback",
+  description: "A platform for collecting feedback from anonymous users.",
 };
 
-interface RootLayoutProps {
+export default function RootLayout({
+  children,
+}: Readonly<{
   children: React.ReactNode;
-}
-
-export default async function RootLayout({ children }: RootLayoutProps) {
+}>) {
   return (
-    <html lang="en" >
+    <html lang="en" suppressHydrationWarning>
       <AuthProvider>
-        <body className={inter.className}>
-          {children}
-          <Toaster />
-        </body>
+      <body
+        className={`${inter.className} antialiased`}
+      >
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+        {children}
+        </ThemeProvider>
+        <Toaster />
+      </body>
       </AuthProvider>
     </html>
   );
 }
-

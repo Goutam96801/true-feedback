@@ -20,6 +20,7 @@ import {
 import { Button } from './ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { ApiResponse } from '@/types/ApiResponse';
+import { CardSpotlight } from './ui/card-spotlight';
 
 type MessageCardProps = {
   message: Message;
@@ -38,7 +39,6 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
         title: response.data.message,
       });
       onMessageDelete(message._id);
-
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -47,13 +47,13 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
           axiosError.response?.data.message ?? 'Failed to delete message',
         variant: 'destructive',
       });
-    } 
+    }
   };
 
   return (
-    <Card className="card-bordered">
+    <CardSpotlight className="card-bordered">
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center z-10">
           <CardTitle>{message.content}</CardTitle>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -80,11 +80,11 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <div className="text-sm">
+        <div className="text-sm z-10">
           {dayjs(message.createdAt).format('MMM D, YYYY h:mm A')}
         </div>
       </CardHeader>
       <CardContent></CardContent>
-    </Card>
+    </CardSpotlight>
   );
 }

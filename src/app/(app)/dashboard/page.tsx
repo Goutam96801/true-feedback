@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
+import { BackgroundBeams } from '@/components/ui/background-beams';
 
 function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -40,7 +41,7 @@ function UserDashboard() {
     setIsSwitchLoading(true);
     try {
       const response = await axios.get<ApiResponse>('/api/accept-messages');
-      setValue('acceptMessages', response.data.isAcceptingMessages);
+      setValue('acceptMessages', response.data.isAcceptingMessages!);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -134,8 +135,9 @@ function UserDashboard() {
   };
 
   return (
-    <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
-      <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
+    <>
+    <div className="z-10 my-16 mx-4 md:mx-8 lg:mx-auto p-6  rounded w-full max-w-6xl">
+      <h1 className="text-4xl font-bold mb-4">Your Dashboard - {username}</h1>
 
       <div className="mb-4">
         <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{' '}
@@ -144,7 +146,7 @@ function UserDashboard() {
             type="text"
             value={profileUrl}
             disabled
-            className="input input-bordered w-full p-2 mr-2"
+            className="input input-bordered w-full p-2 mr-2 rounded "
           />
           <Button onClick={copyToClipboard}>Copy</Button>
         </div>
@@ -181,7 +183,7 @@ function UserDashboard() {
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <MessageCard
-              key={message._id}
+              key={index}
               message={message}
               onMessageDelete={handleDeleteMessage}
             />
@@ -189,8 +191,12 @@ function UserDashboard() {
         ) : (
           <p>No messages to display.</p>
         )}
+        
       </div>
     </div>
+    
+    <BackgroundBeams />
+    </>
   );
 }
 
