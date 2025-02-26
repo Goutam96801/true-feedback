@@ -1,19 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { StreamingTextResponse } from 'ai';
 
 export const runtime = 'edge';
-
-// Strict validation function
-const validateQuestions = (text: string): boolean => {
-  const questions = text.split('||');
-  return (
-    questions.length === 3 &&
-    questions.every(q => q.trim().endsWith('?')) &&
-    !text.includes('\n') &&
-    !text.includes('"')
-  );
-};
 
 export async function POST() {
   try {

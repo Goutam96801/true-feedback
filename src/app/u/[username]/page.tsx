@@ -8,7 +8,6 @@ import { Loader2, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CardHeader, CardContent, Card } from '@/components/ui/card';
-import { useCompletion } from 'ai/react';
 import {
   Form,
   FormControl,
@@ -25,12 +24,9 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { messageSchema } from '@/schemas/messageSchema';
 import { ModeToggle } from '@/components/ui/mode-toggle';
-import { BackgroundBeams } from '@/components/ui/background-beams';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
-import { useSession } from 'next-auth/react';
 
-const specialChar = '||';
 const fallbackQuestions = [
   "What's your favorite movie?",
   "Do you have any pets?",
@@ -133,7 +129,9 @@ export default function SendMessage() {
       toast({
         title: 'Failed to load suggestions',
         variant: 'destructive',
+        
       });
+      console.error(error);
     }
   };
 

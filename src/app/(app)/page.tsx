@@ -1,9 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Mail } from 'lucide-react'; 
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { InfiniteMovingCards } from '@/components/ui/infinite-moving-cards';
 

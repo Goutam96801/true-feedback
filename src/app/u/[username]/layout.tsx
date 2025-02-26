@@ -1,4 +1,3 @@
-import Navbar from '@/components/Navbar';
 import { BackgroundBeams } from '@/components/ui/background-beams';
 
 interface RootLayoutProps {

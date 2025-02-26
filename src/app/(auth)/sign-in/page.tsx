@@ -1,21 +1,13 @@
 "use client";
 
-import { ApiResponse } from "@/types/ApiResponse";
-import React, { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-    IconBrandGithub,
-    IconBrandGoogle,
-    IconBrandOnlyfans,
-} from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import * as z from "zod";
-import axios, { AxiosError } from "axios";
 import { Loader2, Lock, User } from "lucide-react";
 import {
     Form,
@@ -136,7 +128,7 @@ return (
 
                 <div className="text-center mt-4">
                     <p className="text-neutral-600 dark:text-neutral-300">
-                        Don't have an account?{" "}
+                        Don&apos;t have an account?{" "}
                         <Link
                             href="/sign-up"
                             className="text-blue-600 hover:text-blue-800"

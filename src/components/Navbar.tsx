@@ -4,11 +4,10 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from './ui/button';
-import { User } from 'next-auth';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { ModeToggle } from './ui/mode-toggle';
-import { ArrowLeftIcon, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 function Navbar() {
   const { resolvedTheme } = useTheme();

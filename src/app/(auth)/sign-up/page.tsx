@@ -2,14 +2,8 @@
 
 import { ApiResponse } from "@/types/ApiResponse";
 import React, { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandOnlyfans,
-} from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "hooks-ts";
@@ -88,8 +82,7 @@ const SignupForm = () => {
       console.error("Error during sign-up:", error);
 
       const axiosError = error as AxiosError<ApiResponse>;
-      let errorMessage = axiosError.response?.data.message;
-      ("There was a problem with your sign-up. Please try again.");
+      const errorMessage = axiosError.response?.data.message || "There was a problem with your sign-up. Please try again.";
 
       toast({
         title: "Sign Up Failed",

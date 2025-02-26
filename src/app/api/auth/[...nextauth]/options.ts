@@ -4,6 +4,19 @@ import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 
+interface Credentials {
+  identifier: string;
+  password: string;
+}
+
+interface AuthUser {
+  _id: string;
+  isVerified: boolean;
+  isAcceptingMessages: boolean;
+  username: string;
+  email: string;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -13,7 +26,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(credentials: Credentials): Promise<AuthUser | null> {
         await dbConnect();
         try {
           const user = await UserModel.findOne({
@@ -22,23 +35,21 @@ export const authOptions: NextAuthOptions = {
               { username: credentials.identifier },
             ],
           });
-          if (!user) {
-            throw new Error('No user found with this email');
-          }
-          if (!user.isVerified) {
-            throw new Error('Please verify your account before logging in');
-          }
-          const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-          if (isPasswordCorrect) {
-            return user;
-          } else {
-            throw new Error('Incorrect password');
-          }
-        } catch (err: any) {
-          throw new Error(err);
+          if (!user) throw new Error('No user found with this email');
+          if (!user.isVerified) throw new Error('Please verify your account before logging in');
+          
+          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+          if (!isPasswordCorrect) throw new Error('Incorrect password');
+
+          return {
+            _id: user._id.toString(),
+            isVerified: user.isVerified,
+            isAcceptingMessages: user.isAcceptingMessages,
+            username: user.username,
+            email: user.email,
+          };
+        } catch (err) {
+          throw new Error(err instanceof Error ? err.message : 'Unknown error occurred');
         }
       },
     }),
@@ -46,7 +57,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id?.toString(); // Convert ObjectId to string
+        token._id = user._id;
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
@@ -63,11 +74,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  session: {
-    strategy: 'jwt',
-  },
+  session: { strategy: 'jwt' },
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: '/sign-in',
-  },
+  pages: { signIn: '/sign-in' },
 };

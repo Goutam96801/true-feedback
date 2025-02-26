@@ -1,6 +1,5 @@
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
-import { ApiResponse } from '@/types/ApiResponse';
 
 export async function POST(request: Request) {
   await dbConnect();
