@@ -7,7 +7,7 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { ModeToggle } from './ui/mode-toggle';
-import { BookDashedIcon, LayoutDashboard, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 function Navbar() {
