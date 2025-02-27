@@ -1,5 +1,4 @@
 'use client';
-
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { InfiniteMovingCards } from '@/components/ui/infinite-moving-cards';
 

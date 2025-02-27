@@ -37,35 +37,47 @@ const SignInForm = () => {
     const onSubmit = async (data: z.infer<typeof signInSchema>) => {
         setIsSubmitting(true);
         const result = await signIn('credentials', {
-            rediredt: false,
-            identifier: data.identifier,
-            password: data.password,
+          redirect: false, // corrected typo here
+          identifier: data.identifier,
+          password: data.password,
         });
-
-        if (result.error) {
-            if (result.error === 'CredentialsSignin') {
-                toast({
-                    title: 'Login Failed',
-                    description: 'Invalid credentials',
-                    variant: 'destructive',
-                });
-            }
-            else {
-                toast({
-                    title: 'Error',
-                    description: result?.error,
-                    variant: 'destructive',
-                });
-            }
-            setIsSubmitting(false);
+      
+        if (!result) {
+          toast({
+            title: 'Unexpected Error',
+            description: 'No response received from sign in',
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          return;
         }
-
-
-        if (result?.url) {
-            setIsSubmitting(false);
-            router.replace('/dashboard');
+      
+        if (result.error === 'CredentialsSignin') {
+          toast({
+            title: 'Login Failed',
+            description: 'Invalid credentials',
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          return;
+        } else if (result.error) {
+          toast({
+            title: 'Error',
+            description: result.error,
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          return;
         }
-    };
+      
+        if (result.url) {
+          setIsSubmitting(false);
+          router.replace('/dashboard');
+        } else {
+          setIsSubmitting(false);
+        }
+      };
+      
 
 return (
     <div className="max-w-md w-full mx-auto mt-4 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black ">

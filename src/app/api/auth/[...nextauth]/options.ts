@@ -9,24 +9,22 @@ interface Credentials {
   password: string;
 }
 
-interface AuthUser {
-  _id: string;
-  isVerified: boolean;
-  isAcceptingMessages: boolean;
-  username: string;
-  email: string;
-}
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: 'credentials',
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
+        identifier: { label: 'Email or Username', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials: Credentials): Promise<AuthUser | null> {
+      async authorize(
+        credentials: Credentials | undefined,
+      ): Promise<any> {
+        if (!credentials) {
+          throw new Error('No credentials provided');
+        }
+
         await dbConnect();
         try {
           const user = await UserModel.findOne({
@@ -35,21 +33,25 @@ export const authOptions: NextAuthOptions = {
               { username: credentials.identifier },
             ],
           });
-          if (!user) throw new Error('No user found with this email');
-          if (!user.isVerified) throw new Error('Please verify your account before logging in');
-          
-          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
-          if (!isPasswordCorrect) throw new Error('Incorrect password');
-
-          return {
-            _id: user._id.toString(),
-            isVerified: user.isVerified,
-            isAcceptingMessages: user.isAcceptingMessages,
-            username: user.username,
-            email: user.email,
-          };
-        } catch (err) {
-          throw new Error(err instanceof Error ? err.message : 'Unknown error occurred');
+          if (!user) {
+            throw new Error('No user found with this email');
+          }
+          if (!user.isVerified) {
+            throw new Error('Please verify your account before logging in');
+          }
+          const isPasswordCorrect = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+          if (isPasswordCorrect) {
+            return user;
+          } else {
+            throw new Error('Incorrect password');
+          }
+        } catch (err: unknown) {
+          let errorMessage = 'An unknown error occurred';
+          if (err instanceof Error) errorMessage = err.message;
+          throw new Error(errorMessage);
         }
       },
     }),
@@ -57,7 +59,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id;
+        token._id = user._id?.toString();
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
@@ -74,7 +76,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+  },
   secret: process.env.NEXTAUTH_SECRET,
-  pages: { signIn: '/sign-in' },
+  pages: {
+    signIn: '/sign-in',
+  },
 };
