@@ -7,7 +7,8 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { ModeToggle } from './ui/mode-toggle';
-import { LogOut } from 'lucide-react';
+import { BookDashedIcon, LayoutDashboard, LogOut, Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 function Navbar() {
   const { resolvedTheme } = useTheme();
@@ -44,20 +45,63 @@ function Navbar() {
             )}
             </Link>
           </div>
+
+          {/* Mobile Menu */}
+          <div className="sm:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[240px] sm:w-[300px]">
+                <div className="flex flex-col gap-4 py-4">
+                  <ModeToggle />
+                  {session ? (
+                    <div className='flex flex-col gap-2'>
+                      <Button variant="default" className=''>
+                        <Link href="/dashboard" className='flex items-center'>
+                        <LayoutDashboard className="mr-2 h-4 w-4"/> Dashboard
+                        </Link>
+                      </Button>
+                    <Button onClick={() => signOut()} variant="outline" className="w-full">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Link href="/sign-in" className="w-full">
+                        <Button variant="default" className="w-full">
+                          Login
+                        </Button>
+                      </Link>
+                      <Link href="/sign-up" className="w-full">
+                        <Button variant="outline" className="w-full">
+                          Register
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Desktop Menu */}
           {session ? (
-            <>
-              <div className='flex items-center gap-4'>
-                <ModeToggle />
-              
-              <Button onClick={() => signOut()}  variant='outline'>
-                <LogOut/>
+            <div className="hidden sm:flex items-center gap-4">
+              <Button variant="link"><Link href="/dashboard">Dashboard</Link></Button>
+              <ModeToggle />
+              <Button onClick={() => signOut()} variant="outline">
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
-              </div>
-            </>
+            </div>
           ) : (
-            <div className='flex gap-2'>
-              <div className='mr-2'>
+            <div className="hidden sm:flex gap-2">
+              <div className="mr-2">
                 <ModeToggle />
               </div>
               <Link href="/sign-in">
